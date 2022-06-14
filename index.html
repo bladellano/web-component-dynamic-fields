@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Inputs</title>
+</head>
+
+<body>
+
+    <form id="form" action="" method="GET">
+
+        <label for="">Flex</label>
+        <input type="text" name="lorem1">
+        <label for="">Codigo</label>
+        <input type="text" name="lorem2">
+
+        <div class="_pendencias"></div>
+        <div class="_itens"></div>
+        <!-- _nameButtonRemove = 'Remover' -->
+        <div class="pendencias">
+            <zpt-inputs-flex 
+            _fieldsGrouper = 'pendencias'
+            _nameButtonAdd = 'Adicionar Pendência'
+            dataVcto="date"
+            dataEmissao="date"
+            conta="number"
+            parcela="number"
+            nParcelas="number"
+            valor="text"
+            codEntidade='{"options":[{"Unidade/Loja":"U"},{"Fornecedor":"F"},{"Cliente":"C"},{"Funcionário":"I"}]}'
+            valorcomissao="text"
+            ></zpt-inputs-flex>
+        </div>
+    
+        <div class="itens">
+             <zpt-inputs-flex 
+            _fieldsGrouper = 'itens'
+            _nameButtonAdd = 'Adicionar item'
+            item="text"
+            qtde="number"
+            descricao="text"
+            sequencialDcto="number"
+            tipoItem='{"options":[{"Mercadoria para revenda":"00"},{"Matéria prima":"01"},{"Embalagem":"02"},{"Produto em processo":"03"},{"Roduto acabado":"04"},{"Subproduto":"05"},{"Produto intermediário":"06"},{"Material de Uso e Consumo":"07"},{"Ativo imobilizado":"08"},{"Serviços":"09"},{"Outros Insumos":"10"},{"Outras":"99"}]}'
+            valorBruto="text"
+            cfop="text"
+            controleTrib="text"
+            ></zpt-inputs-flex>
+        </div>
+
+        <hr>
+        
+        <button>Enviar</button>
+
+    </form>
+
+    
+<script src="zpt-inputs-flex.js"></script>
+
+</body>
+</html>
