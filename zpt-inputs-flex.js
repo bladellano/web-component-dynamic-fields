@@ -2,161 +2,124 @@ class ZptInputsFlex extends HTMLElement {
     constructor() {
         super()
 
+        /** Create a div to expose inputs in regular DOM */
+        const showHtml = document.createElement('div');
+        showHtml.classList.add('showHtml')
+        this.after(showHtml);
+
+        /* Options Shadow */
         this.shadow = this.attachShadow({ mode: 'open' })
 
-        this.typesOfFields = [
-            'text',
-            'number',
-            'date'
-        ];
-
-        /* Button add */
-        this.createButtonAdd()
-
-        /* Main */
+        /* Set the style */
         this.shadow.appendChild(this.style())
 
-        /** Set name button remove */
-        this.nameButtomRemove =
-            (!!this.attributes.getNamedItem('_nameButtonRemove'))
-                ? this.attributes.getNamedItem('_nameButtonRemove').value
-                : '&times'
-
-        /** Set name fieldsGrouper */
-        this.fieldsGrouper =
-            (!!this.attributes.getNamedItem('_fieldsGrouper'))
-                ? this.attributes.getNamedItem('_fieldsGrouper').value
-                : 'fieldsGrouper'
-
-        /* Rows */
+        /* Create the lines */
         this.builderRows()
 
-    }
-
-    /* Create button add */
-    createButtonAdd() {
-
-        const name =
-            (!!this.attributes.getNamedItem('_nameButtonAdd'))
-                ? this.attributes.getNamedItem('_nameButtonAdd').value
-                : 'add'
-
-        const buttonAdd = document.createElement('a')
-        buttonAdd.classList.add('add')
-        buttonAdd.innerHTML = name
-        buttonAdd.addEventListener('click', (e) => {
-            this.builderRows(e)
-        });
-
-        this.shadow.appendChild(buttonAdd)
     }
 
     createButtonRemove() {
 
         const buttonRemove = document.createElement('a')
-        buttonRemove.innerHTML = this.nameButtomRemove
+        buttonRemove.innerHTML = '&times'
         buttonRemove.classList.add('remove')
         buttonRemove.addEventListener('click', function (e) {
             this.parentElement.remove()
         })
-
         return buttonRemove
     }
 
+    buttonAdd() {
+        const btn = document.createElement('a')
+        btn.innerHTML = '+'
+        btn.classList.add('add')
+        btn.addEventListener('click', () => this.builderRows(true))
+        return btn
+    }
+
     /** Create lines with fields */
-    builderRows() {
+    builderRows(cleanValues = false) {
 
         const div = document.createElement('div')
-
         div.classList.add('line')
 
         const btnRemove = this.createButtonRemove()
-
-        if (!!this.attributes.getNamedItem('_fieldsGrouper')) {
-            this.attributes.removeNamedItem('_fieldsGrouper')
-        }
-
-        if (!!this.attributes.getNamedItem('_nameButtonAdd'))
-            this.attributes.removeNamedItem('_nameButtonAdd')
-
-        if (!!this.attributes.getNamedItem('_nameButtonRemove'))
-            this.attributes.removeNamedItem('_nameButtonRemove')
+        const buttonAdd = this.buttonAdd()
 
         const fields = Array.from(this.attributes, (el) => {
 
-            if (this.typesOfFields.indexOf(el.value) != -1) {
+            let inputValueTypeOptions = '';
 
-                const formGRoup = document.createElement('div')
-                formGRoup.classList.add('form_group')
+            if (this.isJson(el.value))
+                inputValueTypeOptions = JSON.parse(el.value);
 
-                const label = document.createElement('label')
-                label.innerText = el.name[0].toUpperCase() + el.name.substring(1)
+            let _type = inputValueTypeOptions.type || '';
+            let _value = inputValueTypeOptions.value || (el.value || '');
+            let _label = inputValueTypeOptions.label || '';
 
-                formGRoup.appendChild(label)
+            if (cleanValues) _value = '';
 
-                const input = document.createElement('input')
-                input.type = el.value;
-                input.setAttribute('name', `${this.fieldsGrouper}[${el.name}][]`)
+            const formGRoup = document.createElement('div')
+            formGRoup.classList.add('form_group')
 
-                input.setAttribute('required', true)
+            const label = document.createElement('label')
+            label.innerText = _label || el.name
 
-                formGRoup.appendChild(input)
+            formGRoup.appendChild(label)
 
-                return formGRoup
+            let input = '';
 
-                /** Type select */
+            if (_type == 'select') {
+                input = document.createElement('select');
             } else {
-
-                const formGRoup = document.createElement('div')
-                formGRoup.classList.add('form_group')
-
-                const label = document.createElement('label')
-                label.innerText = el.name[0].toUpperCase() + el.name.substring(1)
-
-                formGRoup.appendChild(label)
-
-                const obj = JSON.parse(el.value)
-                const input = document.createElement("select");
-                input.setAttribute('name', `${this.fieldsGrouper}[${el.name}][]`)
-
-                let op = document.createElement('option')
-                op.text = `Selecione`
-                op.value = ''
-
-                input.appendChild(op)
-
-                for (let key in obj.options) {
-                    op = document.createElement('option')
-                    op.value = String(Object.values(obj.options[key]))
-                    op.text = String(Object.keys(obj.options[key]))
-                    input.appendChild(op)
-                }
-
-                formGRoup.appendChild(input)
-
-                return formGRoup
+                input = document.createElement('input');
+                input.type = _type || 'text';
             }
 
-        })
+            input.value = _value;
+            input.name = el.name;
+
+            if (_type == 'select') {
+                let op = document.createElement('option')
+                op.text = `--`
+                op.value = ''
+                input.appendChild(op)
+
+                for (let key in inputValueTypeOptions.options) {
+                    op = document.createElement('option')
+                    op.value = String(Object.values(inputValueTypeOptions.options[key]))
+                    op.text = String(Object.keys(inputValueTypeOptions.options[key]))
+
+                    if (op.value == _value) op.setAttribute('selected', true);
+
+                    input.appendChild(op)
+                }
+            }
+
+            formGRoup.appendChild(input)
+
+            return formGRoup
+        });
 
         fields.forEach(field => div.appendChild(field))
+
+        div.append(buttonAdd)
         div.append(btnRemove)
+
         this.shadow.append(div)
 
-        let wrap = this.parentElement.getAttribute('class');
+        document.querySelector('.showHtml').append(this.shadow);
 
-        let content = document.querySelector(`._${wrap}`)
-        content.appendChild(this.shadow)
-    }   
+    }
 
     style() {
         const style = document.createElement('style')
         style.textContent = `
-            [class^=_] .line{
+            .showHtml .line{
                 display: flex;
             }
-            [class^=_] .form_group input,
-            [class^=_] .form_group select{
+            .showHtml .form_group input,
+            .showHtml .form_group select{
                 padding: .8rem .75rem;
                 border: 1px solid #ccc;
                 margin: 2px 6px;
@@ -164,22 +127,23 @@ class ZptInputsFlex extends HTMLElement {
                 background-color:#fff;
             }
             
-            [class^=_] .form_group select{
+            .showHtml .form_group select{
                 width: 94%;
             }
-            [class^=_] .form_group input
+            .showHtml .form_group input
             {
                 width: 78%;
             }
 
-            [class^=_] .form_group input:focus{
+            .showHtml .form_group input:focus{
                 border: 1px solid #000;
 		        outline: none;
             }
-            [class^=_] a{
+            .showHtml a{
                 text-transform: uppercase;
                 text-decoration: none;
                 padding: .5rem .75rem;
+                margin:0 2px;
                 display: inline-block;
                 cursor:pointer;
                 border-radius: 6px;
@@ -187,32 +151,34 @@ class ZptInputsFlex extends HTMLElement {
                 font-family:'Sans-serif';
             }
 
-            [class^=_] a.remove {
+            .showHtml a.remove {
                 background-color: #dc3545;
                 display: flex;
                 align-self: center;
                 margin-top: 22px;
             }
-            [class^=_] a.remove:hover{
+            .showHtml a.remove:hover{
                 color: #fff;
                 background-color: #c82333;
                 border-color: #bd2130;
             }
-            [class^=_] a.add{
+            .showHtml a.add{
                 background-color:#28a745;
-                margin: 6px;
+                display: flex;
+                align-self: center;
+                margin-top: 22px;
             }
-            [class^=_] a.add:hover{
+            .showHtml a.add:hover{
                 color: #fff;
                 background-color: #218838;
                 border-color: #1e7e34;
             }
 
-            [class^=_] .form_group {
+            .showHtml .form_group {
             padding: 0 3px 0 0;
             }
 
-            [class^=_] .form_group label {
+            .showHtml .form_group label {
                 display: block;
                 font-family:'Sans-serif';
                 padding: 0 6px;
@@ -220,10 +186,19 @@ class ZptInputsFlex extends HTMLElement {
                 font-size: 0.8rem;
             }
 
-            [class^=_] .form_group input {
+            .showHtml .form_group input {
             }
         `
         return style;
+    }
+
+    isJson(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
     }
 }
 
