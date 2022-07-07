@@ -10,7 +10,11 @@ disabled
 itens[codEntidade][]='Somente string'>
 </zpt-inputs-flex>
 ```
+### Estruttura do objeto para passar no valor do atributo:
+```json
+{"label":"Cod. Entidade","value":"U","type":"select","options":[{"Unidade/Loja":"U"},{"Fornecedor":"F"},{"Cliente":"C"},{"Funcionário":"I"}]}
+```
 
 | Label | Value | type | options |disabled |
 | :-------- | :------- | :------- | :----- |:----- |
-| `string` | `string` | `string` |`object` |`attribute` |
+| `string` | `string` | `string`: text/date/number/select |`object` |`attribute` |
