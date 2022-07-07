@@ -13,6 +13,12 @@ class ZptInputsFlex extends HTMLElement {
         /* Set the style */
         this.shadow.appendChild(this.style())
 
+        /** Use attribute disabled */
+        if (!!this.attributes.getNamedItem('disabled')) {
+            this.attributes.removeNamedItem('disabled')
+            this.disabled = 'disabled'
+        }
+
         /* Create the lines */
         this.builderRows()
 
@@ -56,6 +62,7 @@ class ZptInputsFlex extends HTMLElement {
             let _type = inputValueTypeOptions.type || '';
             let _value = inputValueTypeOptions.value || (el.value || '');
             let _label = inputValueTypeOptions.label || '';
+            let _disabled = this.disabled;
 
             if (cleanValues) _value = '';
 
@@ -75,6 +82,9 @@ class ZptInputsFlex extends HTMLElement {
                 input = document.createElement('input');
                 input.type = _type || 'text';
             }
+
+            if (this.disabled && !cleanValues)
+                input.setAttribute(_disabled, true);
 
             input.value = _value;
             input.name = el.name;
@@ -103,8 +113,10 @@ class ZptInputsFlex extends HTMLElement {
 
         fields.forEach(field => div.appendChild(field))
 
-        div.append(buttonAdd)
-        div.append(btnRemove)
+        if (!this.disabled) {
+            div.append(buttonAdd)
+            div.append(btnRemove)
+        }
 
         this.shadow.append(div)
 
@@ -133,6 +145,11 @@ class ZptInputsFlex extends HTMLElement {
             .showHtml .form_group input
             {
                 width: 78%;
+            }
+            .showHtml .form_group input[disabled],
+            .showHtml .form_group select[disabled]
+            {
+                background:#6663;
             }
 
             .showHtml .form_group input:focus{

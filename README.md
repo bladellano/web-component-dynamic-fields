@@ -6,10 +6,11 @@ itens[codEntidade][]='{"label":"Cod. Entidade","value":"U","type":"select","opti
 ```
 ```html
 <zpt-inputs-flex 
+disabled
 itens[codEntidade][]='Somente string'>
 </zpt-inputs-flex>
 ```
 
-| Label | Value | type | options |
-| :-------- | :------- | :------- | :----- |
-| `string` | `string` | `string` |`object` |
+| Label | Value | type | options |disabled |
+| :-------- | :------- | :------- | :----- |:----- |
+| `string` | `string` | `string` |`object` |`attribute` |
