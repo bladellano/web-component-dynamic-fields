@@ -4,7 +4,8 @@ class ZptInputsFlex extends HTMLElement {
 
         /** Create a div to expose inputs in regular DOM */
         const showHtml = document.createElement('div');
-        showHtml.classList.add('showHtml')
+        this.randomClass = `_${this.generateRandomString(10)}`;
+        showHtml.classList.add(this.randomClass)
         this.after(showHtml);
 
         /* Options Shadow */
@@ -17,6 +18,12 @@ class ZptInputsFlex extends HTMLElement {
         if (!!this.attributes.getNamedItem('disabled')) {
             this.attributes.removeNamedItem('disabled')
             this.disabled = 'disabled'
+        }
+
+        /** Use attribute required */
+        if (!!this.attributes.getNamedItem('required')) {
+            this.attributes.removeNamedItem('required')
+            this.required = 'required'
         }
 
         /* Create the lines */
@@ -60,9 +67,10 @@ class ZptInputsFlex extends HTMLElement {
                 inputValueTypeOptions = JSON.parse(el.value);
 
             let _type = inputValueTypeOptions.type || '';
-            let _value = inputValueTypeOptions.value || (el.value || '');
+            let _value = inputValueTypeOptions.value || (!this.isJson(el.value) ? el.value : '');
             let _label = inputValueTypeOptions.label || '';
             let _disabled = this.disabled;
+            let _required = this.required;
 
             if (cleanValues) _value = '';
 
@@ -85,6 +93,9 @@ class ZptInputsFlex extends HTMLElement {
 
             if (this.disabled && !cleanValues)
                 input.setAttribute(_disabled, true);
+
+            if (this.required)
+                input.setAttribute(_required, true);
 
             input.value = _value;
             input.name = el.name;
@@ -119,19 +130,18 @@ class ZptInputsFlex extends HTMLElement {
         }
 
         this.shadow.append(div)
-
-        document.querySelector('.showHtml').append(this.shadow);
+        document.querySelector(`.${this.randomClass}`).append(this.shadow);
 
     }
 
     style() {
         const style = document.createElement('style')
         style.textContent = `
-            .showHtml .line{
+            .${this.randomClass} .line{
                 display: flex;
             }
-            .showHtml .form_group input,
-            .showHtml .form_group select{
+            .${this.randomClass} .form_group input,
+            .${this.randomClass} .form_group select{
                 padding: .8rem .75rem;
                 border: 1px solid #ccc;
                 margin: 2px 6px;
@@ -139,24 +149,24 @@ class ZptInputsFlex extends HTMLElement {
                 background-color:#fff;
             }
             
-            .showHtml .form_group select{
+            .${this.randomClass} .form_group select{
                 width: 94%;
             }
-            .showHtml .form_group input
+            .${this.randomClass} .form_group input
             {
                 width: 78%;
             }
-            .showHtml .form_group input[disabled],
-            .showHtml .form_group select[disabled]
+            .${this.randomClass} .form_group input[disabled],
+            .${this.randomClass} .form_group select[disabled]
             {
                 background:#6663;
             }
 
-            .showHtml .form_group input:focus{
+            .${this.randomClass} .form_group input:focus{
                 border: 1px solid #000;
 		        outline: none;
             }
-            .showHtml a{
+            .${this.randomClass} a{
                 text-transform: uppercase;
                 text-decoration: none;
                 padding: .5rem .75rem;
@@ -168,34 +178,34 @@ class ZptInputsFlex extends HTMLElement {
                 font-family:'Sans-serif';
             }
 
-            .showHtml a.remove {
+            .${this.randomClass} a.remove {
                 background-color: #dc3545;
                 display: flex;
                 align-self: center;
                 margin-top: 22px;
             }
-            .showHtml a.remove:hover{
+            .${this.randomClass} a.remove:hover{
                 color: #fff;
                 background-color: #c82333;
                 border-color: #bd2130;
             }
-            .showHtml a.add{
+            .${this.randomClass} a.add{
                 background-color:#28a745;
                 display: flex;
                 align-self: center;
                 margin-top: 22px;
             }
-            .showHtml a.add:hover{
+            .${this.randomClass} a.add:hover{
                 color: #fff;
                 background-color: #218838;
                 border-color: #1e7e34;
             }
 
-            .showHtml .form_group {
+            .${this.randomClass} .form_group {
             padding: 0 3px 0 0;
             }
 
-            .showHtml .form_group label {
+            .${this.randomClass} .form_group label {
                 display: block;
                 font-family:'Sans-serif';
                 padding: 0 6px;
@@ -203,12 +213,20 @@ class ZptInputsFlex extends HTMLElement {
                 font-size: 0.8rem;
             }
 
-            .showHtml .form_group input {
+            .${this.randomClass} .form_group input {
             }
         `
         return style;
     }
 
+    generateRandomString(length) {
+        var randomString = '';
+        var caracters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        for (var i = 0; i < length; i++) {
+            randomString += caracters.charAt(Math.floor(Math.random() * caracters.length));
+        }
+        return randomString;
+    }
     isJson(str) {
         try {
             JSON.parse(str);
